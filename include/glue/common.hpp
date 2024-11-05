@@ -2,13 +2,15 @@
 
 #include <vector>
 
-void glue_process(std::vector<glue::interface *> interface_objects, const unsigned int screen_width, const unsigned int screen_height)
-{
-	for (glue::interface *intf: interface_objects)
+namespace glue {
+	void process(std::vector<interface *> interface_objects, const unsigned int screen_width, const unsigned int screen_height)
 	{
-		if (nullptr == intf->get_parent())
+		for (interface *intf: interface_objects)
 		{
-			intf->calculate_screen_metrics(glue::data_vec2(0, 0), screen_width, screen_height);
+			if (nullptr == intf->get_parent())
+			{
+				intf->calculate_screen_metrics(data_vec2(0, 0), screen_width, screen_height);
+			}
 		}
 	}
 }

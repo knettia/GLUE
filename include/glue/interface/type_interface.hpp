@@ -44,7 +44,7 @@ namespace glue
 			return screen_size;
 		}
 
-		void calculate_screen_metrics(const int reference_width, const int reference_height)
+		void calculate_screen_metrics(const data_vec2 &origin_position, const int reference_width, const int reference_height)
 		{
 			data_vec2 reference = data_vec2(reference_width, reference_height);
 
@@ -54,11 +54,27 @@ namespace glue
 			calculated_position = data_vec2(std::ceil(calculated_position.x), std::ceil(calculated_position.y));
 			calculated_size = data_vec2(std::ceil(calculated_size.x), std::ceil(calculated_size.y));
 
-			screen_position = calculated_position + position.abs;
+			screen_position = origin_position + calculated_position + position.abs;
 			screen_size = calculated_size + size.abs;
 
 			for (auto *intf : children)
-				intf->calculate_screen_metrics(this->screen_size.x, this->screen_size.y);
+				intf->calculate_screen_metrics(this->screen_position, this->screen_size.x, this->screen_size.y);
+		}
+
+		std::vector<float> get_vertices(int reference_width, int reference_height)
+		{
+			float calculated_screen_x = (screen_position.x / reference_width) * 2.0f - 1.0f;
+			float calculated_screen_y = 1.0f - (screen_position.y / reference_height) * 2.0f;
+
+			float calculated_screen_width = (screen_size.x / reference_width) * 2.0f;
+			float calculated_screen_height = (screen_size.y / reference_height) * 2.0f;
+
+			return {
+			    calculated_screen_x, calculated_screen_y - calculated_screen_height,
+			    calculated_screen_x + calculated_screen_width, calculated_screen_y - calculated_screen_height,
+			    calculated_screen_x + calculated_screen_width, calculated_screen_y,
+			    calculated_screen_x, calculated_screen_y
+			};
 		}
 
 		std::vector<interface *> get_children() const
@@ -95,12 +111,17 @@ namespace glue
 
 			intf.parent = this;
 			children.push_back(&intf);
-			intf.calculate_screen_metrics(this->get_screen_size().x, this->get_screen_size().y);
+		}
+
+		interface *get_parent()
+		{
+			return parent;
 		}
 
 		void set_parent(interface &intf)
 		{
-			if (parent != nullptr) {
+			if (parent != nullptr)
+			{
 				parent->remove_child(*this);
 			}
 
