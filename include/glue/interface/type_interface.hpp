@@ -12,22 +12,23 @@ namespace glue
 {
 	class interface
 	{
-	private:
+	protected:
 		data_vec2 screen_position;
 		data_vec2 screen_size;
 
 		interface *parent = nullptr;
 		std::vector<interface *> children;
 	public:
-		enum interface_type {
+		enum interface_type
+		{
 			_INTERFACE,
 			_BUTTON_INTERFACE,
 		};
 
-		interface(udmi2 position = udmi2(), udmi2 size = udmi2()): position(position), size(size) {}
+		interface(udmi2 position = udmi2(), udmi2 size = udmi2(), udmi2 pivot = udmi2()) : position(position), size(size), pivot(pivot) {}
 		virtual ~interface() {}
 
-		udmi2 position, size;
+		udmi2 position, size, pivot;
 
 		interface_type get_type() const
 		{
@@ -54,14 +55,16 @@ namespace glue
 			calculated_position = data_vec2(std::ceil(calculated_position.x), std::ceil(calculated_position.y));
 			calculated_size = data_vec2(std::ceil(calculated_size.x), std::ceil(calculated_size.y));
 
-			screen_position = origin_position + calculated_position + position.abs;
+			data_vec2 pivot_offset = (calculated_size * pivot.norm) + pivot.abs;
+
+			screen_position = origin_position + calculated_position - pivot_offset + position.abs;
 			screen_size = calculated_size + size.abs;
 
 			for (auto *intf : children)
 				intf->calculate_screen_metrics(this->screen_position, this->screen_size.x, this->screen_size.y);
 		}
 
-		std::vector<float> get_vertices(int reference_width, int reference_height)
+		[[nodiscard]] std::vector<float> get_vertices(int reference_width, int reference_height) const
 		{
 			float calculated_screen_x = (screen_position.x / reference_width) * 2.0f - 1.0f;
 			float calculated_screen_y = 1.0f - (screen_position.y / reference_height) * 2.0f;
