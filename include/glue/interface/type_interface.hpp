@@ -64,7 +64,7 @@ namespace glue
 				intf->calculate_screen_metrics(this->screen_position, this->screen_size.x, this->screen_size.y);
 		}
 
-		[[nodiscard]] std::vector<float> get_vertices(int reference_width, int reference_height) const
+		[[nodiscard]] virtual std::vector<float> get_vertices(int reference_width, int reference_height) const
 		{
 			float calculated_screen_x = (screen_position.x / reference_width) * 2.0f - 1.0f;
 			float calculated_screen_y = 1.0f - (screen_position.y / reference_height) * 2.0f;
@@ -72,11 +72,12 @@ namespace glue
 			float calculated_screen_width = (screen_size.x / reference_width) * 2.0f;
 			float calculated_screen_height = (screen_size.y / reference_height) * 2.0f;
 
-			return {
-			    calculated_screen_x, calculated_screen_y - calculated_screen_height,
-			    calculated_screen_x + calculated_screen_width, calculated_screen_y - calculated_screen_height,
-			    calculated_screen_x + calculated_screen_width, calculated_screen_y,
-			    calculated_screen_x, calculated_screen_y
+			return
+			{
+				calculated_screen_x, calculated_screen_y - calculated_screen_height,
+				calculated_screen_x + calculated_screen_width, calculated_screen_y - calculated_screen_height,
+				calculated_screen_x + calculated_screen_width, calculated_screen_y,
+				calculated_screen_x, calculated_screen_y
 			};
 		}
 
