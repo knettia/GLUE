@@ -4,13 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
 #include <string>
-
 
 // OpenGL
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+// stb
+#include <stb_image.h>
 
 bool init_glew()
 {
@@ -71,7 +72,7 @@ unsigned int compile_shader(unsigned int type, const char *source)
 		char infoLog[512];
 		glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 		std::cout << "Error: Shader Compilation Failed\n"
-			  << infoLog << std::endl;
+			<< infoLog << std::endl;
 	}
 	return shader;
 }
@@ -89,4 +90,47 @@ unsigned int create_shader_program(const char *vertex_source, const char *fragme
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
 	return shader_program;
+}
+
+unsigned int load_texture(const char* filename)
+{
+	unsigned int texture;
+	glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);   
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        int width, height, nrChannels;
+        stbi_set_flip_vertically_on_load(true);
+        unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+
+        if (data) {
+                GLenum format = GL_RGB;
+                switch (nrChannels) {
+                        case 1:
+                                format = GL_RED;
+                                break;
+                        case 3:
+                                format = GL_RGB;
+                                break;
+                        case 4:
+                                format = GL_RGBA;
+                                break;
+                        default:
+                                std::cout << "Unsupported number of channels: " << nrChannels << std::endl;
+                                stbi_image_free(data);
+                        return 0;
+                }
+
+                glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+                glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+                std::cout << "Failed to load texture!" << std::endl;
+        }
+
+        stbi_image_free(data);
+	return texture;
 }
