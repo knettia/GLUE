@@ -3,10 +3,15 @@
 // std
 #include <cmath>
 #include <vector>
+#include <algorithm>
+#include <limits>
 
 // GLUE
-#include "../udmi2.hpp"
 #include "../vec2.hpp"
+#include "../udmi2.hpp"
+#include "../unsigned_float.hpp"
+
+constexpr int huge = std::numeric_limits<int>::max();
 
 namespace glue
 {
@@ -28,7 +33,12 @@ namespace glue
 		interface(udmi2 position = udmi2(), udmi2 size = udmi2(), udmi2 pivot = udmi2()) : position(position), size(size), pivot(pivot) {}
 		virtual ~interface() {}
 
-		udmi2 position, size, pivot;
+		udmi2 position;
+		udmi2 size;
+		udmi2 pivot;
+		data_vec2 min_size = data_vec2(0, 0);
+		data_vec2 max_size = data_vec2(huge, huge);
+		unsigned_float aspect_ratio;
 
 		interface_type get_type() const
 		{
@@ -55,7 +65,20 @@ namespace glue
 			calculated_position = data_vec2(std::ceil(calculated_position.x), std::ceil(calculated_position.y));
 			calculated_size = data_vec2(std::ceil(calculated_size.x), std::ceil(calculated_size.y));
 
-			data_vec2 pivot_offset = (calculated_size * pivot.norm) + pivot.abs;
+			calculated_size.x = std::clamp(calculated_size.x, min_size.x, max_size.x);
+			calculated_size.y = std::clamp(calculated_size.y, min_size.y, max_size.y);
+
+			if (aspect_ratio > 0.0f)
+			{
+				float current_aspect_ratio = calculated_size.x / calculated_size.y;
+
+				if (current_aspect_ratio > aspect_ratio)
+					calculated_size.x = calculated_size.y * aspect_ratio;
+				else if (current_aspect_ratio < aspect_ratio)
+					calculated_size.y = calculated_size.x / aspect_ratio;
+			}
+
+			data_vec2 pivot_offset = (calculated_size * pivot.norm) + (size.abs * pivot.norm) + pivot.abs;
 
 			screen_position = origin_position + calculated_position - pivot_offset + position.abs;
 			screen_size = calculated_size + size.abs;
