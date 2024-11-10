@@ -3,9 +3,6 @@
 // std
 #include <functional>
 
-// GLUE
-#include "./type_interface.hpp"
-
 namespace glue
 {
 	class button_interface : public interface

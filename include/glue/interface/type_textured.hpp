@@ -1,8 +1,5 @@
 #pragma once
 
-// GLUE
-#include "./type_interface.hpp"
-
 namespace glue
 {
 	class textured_interface : public interface
@@ -20,7 +17,7 @@ namespace glue
 
 			return
 			{
-			//position                                                                                             texture
+			//      position                                                                                       texture
 				calculated_screen_x, calculated_screen_y - calculated_screen_height,                           0.0f, 0.0f,
 				calculated_screen_x + calculated_screen_width, calculated_screen_y - calculated_screen_height, 1.0f, 0.0f,
 				calculated_screen_x + calculated_screen_width, calculated_screen_y,                            1.0f, 1.0f,

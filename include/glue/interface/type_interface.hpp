@@ -6,22 +6,15 @@
 #include <algorithm>
 #include <limits>
 
-// GLUE
-#include "../vec2.hpp"
-#include "../udmi2.hpp"
-#include "../unsigned_float.hpp"
-
-constexpr int huge = std::numeric_limits<int>::max();
-
 namespace glue
 {
 	class interface
 	{
 	protected:
-		data_vec2 screen_position;
-		data_vec2 screen_size;
+		vec2 screen_position;
+		vec2 screen_size;
 
-		interface *parent = nullptr;
+		interface *parent;
 		std::vector<interface *> children;
 	public:
 		enum interface_type
@@ -30,14 +23,27 @@ namespace glue
 			_BUTTON_INTERFACE,
 		};
 
-		interface(udmi2 position = udmi2(), udmi2 size = udmi2(), udmi2 pivot = udmi2()) : position(position), size(size), pivot(pivot) {}
+		interface(udmi2 position = udmi2(), udmi2 size = udmi2(), udmi2 pivot = udmi2())
+			:
+			position(position), 
+			size(size), 
+			pivot(pivot),
+			min_size(0, 0),
+			max_size(huge_int, huge_int),
+			aspect_ratio(0.0f),
+			parent(nullptr)
+		{
+			screen_position = vec2(0, 0);
+			screen_size = vec2(0, 0);
+		}
+
 		virtual ~interface() {}
 
 		udmi2 position;
 		udmi2 size;
 		udmi2 pivot;
-		data_vec2 min_size = data_vec2(0, 0);
-		data_vec2 max_size = data_vec2(huge, huge);
+		vec2 min_size;
+		vec2 max_size;
 		unsigned_float aspect_ratio;
 
 		interface_type get_type() const
@@ -45,25 +51,25 @@ namespace glue
 			return interface_type::_INTERFACE;
 		}
 
-		data_vec2 get_screen_position() const
+		vec2 get_screen_position() const
 		{
 			return screen_position;
 		}
 
-		data_vec2 get_screen_size() const
+		vec2 get_screen_size() const
 		{
 			return screen_size;
 		}
 
-		void calculate_screen_metrics(const data_vec2 &origin_position, const int reference_width, const int reference_height)
+		void calculate_screen_metrics(const vec2 &origin_position, const int reference_width, const int reference_height)
 		{
-			data_vec2 reference = data_vec2(reference_width, reference_height);
+			vec2 reference = vec2(reference_width, reference_height);
 
-			data_vec2 calculated_position = reference * position.norm;
-			data_vec2 calculated_size = reference * size.norm;
+			vec2 calculated_position = reference * position.norm;
+			vec2 calculated_size = reference * size.norm;
 
-			calculated_position = data_vec2(std::ceil(calculated_position.x), std::ceil(calculated_position.y));
-			calculated_size = data_vec2(std::ceil(calculated_size.x), std::ceil(calculated_size.y));
+			calculated_position = vec2(std::ceil(calculated_position.x), std::ceil(calculated_position.y));
+			calculated_size = vec2(std::ceil(calculated_size.x), std::ceil(calculated_size.y));
 
 			calculated_size.x = std::clamp(calculated_size.x, min_size.x, max_size.x);
 			calculated_size.y = std::clamp(calculated_size.y, min_size.y, max_size.y);
@@ -78,7 +84,7 @@ namespace glue
 					calculated_size.y = calculated_size.x / aspect_ratio;
 			}
 
-			data_vec2 pivot_offset = (calculated_size * pivot.norm) + (size.abs * pivot.norm) + pivot.abs;
+			vec2 pivot_offset = (calculated_size * pivot.norm) + (size.abs * pivot.norm) + pivot.abs;
 
 			screen_position = origin_position + calculated_position - pivot_offset + position.abs;
 			screen_size = calculated_size + size.abs;
