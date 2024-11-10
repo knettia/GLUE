@@ -1,13 +1,11 @@
 #pragma once
 
-#include "../vec2.hpp"
-
 namespace glue
 {
 	struct udmi2
 	{
-		data_vec2 norm, abs;
+		vec2 norm, abs;
 
-		udmi2(const data_vec2 &norm = data_vec2(0.0f, 0.0f), const data_vec2 &abs = data_vec2(0.0f, 0.0f)) : norm(norm), abs(abs) {}
+		udmi2(const vec2 &norm = vec2(0.0f, 0.0f), const vec2 &abs = vec2(0.0f, 0.0f)) : norm(norm), abs(abs) {}
 	};
 }

@@ -11,7 +11,11 @@ namespace glue
 	{
 		float value;
 
-		inline constexpr unsigned_float(float val = 0.0f) : value((val < 0.0f) ? 0.0f : val) {}
+		template <typename _T>
+		inline constexpr unsigned_float(_T val = 0.0f) : value((val < 0.0f) ? 0.0f : static_cast<float>(val))
+		{
+			static_assert(std::is_arithmetic<_T>::value, "non-numeric type provided");
+		}
 
 		inline constexpr operator float() const { return value; }
 

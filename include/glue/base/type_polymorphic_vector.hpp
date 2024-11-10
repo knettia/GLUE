@@ -1,4 +1,4 @@
-// UNUSED / WIP
+#pragma once // UNUSED / WIP
 
 // std
 #include <vector>
