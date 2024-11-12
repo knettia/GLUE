@@ -17,12 +17,6 @@ namespace glue
 		interface *parent;
 		std::vector<interface *> children;
 	public:
-		enum interface_type
-		{
-			_INTERFACE,
-			_BUTTON_INTERFACE,
-		};
-
 		interface(udmi2 position = udmi2(), udmi2 size = udmi2(), udmi2 pivot = udmi2())
 			:
 			position(position), 
@@ -31,6 +25,9 @@ namespace glue
 			min_size(0, 0),
 			max_size(huge_int, huge_int),
 			aspect_ratio(0.0f),
+			z_layer(0),
+			opacity(0.0f),
+			hue(1.0f, 1.0f, 1.0f),
 			parent(nullptr)
 		{
 			screen_position = vec2(0, 0);
@@ -41,12 +38,17 @@ namespace glue
 
 		udmi2 position;
 		udmi2 size;
+		
 		udmi2 pivot;
 		vec2 min_size;
 		vec2 max_size;
 		unsigned_float aspect_ratio;
 
-		interface_type get_type() const
+		int z_layer;
+		unsigned_float opacity;
+		vec3 hue;
+
+		virtual interface_type get_type() const
 		{
 			return interface_type::_INTERFACE;
 		}
