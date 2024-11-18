@@ -4,8 +4,31 @@ namespace glue
 {
 	class textured_interface : public interface
 	{
+	private:
+		unsigned int texture;
 	public:
-		textured_interface() = default;
+		textured_interface()
+			: interface(),
+			image_opacity(0.0f),
+			image_hue(1.0f, 1.0f, 1.0f) {}
+
+		interface_type get_type() const override
+		{
+			return interface_type::_TEXTURED_INTERFACE;
+		}
+
+		unsigned_float image_opacity;
+		vec3 image_hue;
+
+		unsigned int get_texture()
+		{
+			return texture;
+		}
+
+		void set_texture(unsigned int t)
+		{
+			texture = t;
+		}
 
 		[[nodiscard]] std::vector<float> get_vertices(int reference_width, int reference_height) const override
 		{
