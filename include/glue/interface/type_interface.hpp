@@ -63,8 +63,9 @@ namespace glue
 			return screen_size;
 		}
 
-		void calculate_screen_metrics(const vec2 &origin_position, const int reference_width, const int reference_height)
+		virtual void calculate_screen_metrics(const int reference_width, const int reference_height)
 		{
+			vec2 origin_position = (parent) ? parent->get_screen_position() : vec2(0, 0);
 			vec2 reference = vec2(reference_width, reference_height);
 
 			vec2 calculated_position = reference * position.norm;
@@ -92,7 +93,7 @@ namespace glue
 			screen_size = calculated_size + size.abs;
 
 			for (auto *intf : children)
-				intf->calculate_screen_metrics(this->screen_position, this->screen_size.x, this->screen_size.y);
+				intf->calculate_screen_metrics( this->screen_size.x, this->screen_size.y);
 		}
 
 		[[nodiscard]] virtual std::vector<float> get_vertices(int reference_width, int reference_height) const
