@@ -7,5 +7,6 @@ namespace glue
 		_INTERFACE,
 		_TEXTURED_INTERFACE,
 		_BUTTON_INTERFACE,
+		_WORLD_INTERFACE,
 	};
 }
