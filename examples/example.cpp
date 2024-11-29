@@ -60,13 +60,18 @@ int main()
 	// set its position
 	main_interface.position =
 	//                  norm                     abs
-		glue::udmi2(glm::vec2(0.25f, 0.25f), glm::vec2(0, 0));
+		glue::udmi2(glm::vec2(0.5f, 0.5f), glm::vec2(0, 0));
 
 	// set its size
 	main_interface.size =
 	//                  norm                   abs
 		glue::udmi2(glm::vec2(0.5f, 0.5f), glm::vec2(0, 0));
 
+	main_interface.pivot =
+	//                  norm                   abs
+		glue::udmi2(glm::vec2(0.5f, 0.5f), glm::vec2(0, 0));
+
+	main_interface.aspect_ratio = 3.0f / 4.0f;
 	// calculate its screen metrics
 	main_interface.calculate_screen_metrics
 	(
