@@ -23,11 +23,11 @@ bool init_glew()
 		return false;
 	}
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
+	// glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	return true;
 }
@@ -44,7 +44,7 @@ GLFWwindow *init_window(const unsigned int WIDTH = 1600, const unsigned int HEIG
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
 	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, WINDOW_TITLE, nullptr, nullptr);
 
@@ -77,10 +77,25 @@ unsigned int compile_shader(unsigned int type, const char *source)
 	return shader;
 }
 
-unsigned int create_shader_program(const char *vertex_source, const char *fragment_source )
+unsigned int create_shader_program(const char *vertex_path, const char *fragment_path)
 {
+	std::ifstream vertex_file(vertex_path);
+        std::stringstream vertex_code_stream; vertex_code_stream << vertex_file.rdbuf();
+	std::string vertex_code = vertex_code_stream.str();
+
+        char *vertex_source = new char[vertex_code.size() + 1];
+        strlcpy(vertex_source, vertex_code.c_str(), vertex_code.size() + 1);
+
+	std::ifstream fragment_file(fragment_path);
+        std::stringstream fragment_code_stream; fragment_code_stream << fragment_file.rdbuf();
+	std::string fragment_code = fragment_code_stream.str();
+
+        char *fragment_source = new char[fragment_code.size() + 1];
+        strlcpy(fragment_source, fragment_code.c_str(), fragment_code.size() + 1);
+
 	unsigned int vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_source);
 	unsigned int fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_source);
+
 	unsigned int shader_program = glCreateProgram();
 
 	glAttachShader(shader_program, vertex_shader);
@@ -89,6 +104,10 @@ unsigned int create_shader_program(const char *vertex_source, const char *fragme
 
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
+
+	delete[] vertex_source;
+    	delete[] fragment_source;
+
 	return shader_program;
 }
 
@@ -108,7 +127,7 @@ unsigned int load_texture(const char* filename)
         unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
 
         if (data) {
-                GLenum format = GL_RGB;
+                unsigned int format = GL_RGB;
                 switch (nrChannels) {
                         case 1:
                                 format = GL_RED;
@@ -120,7 +139,7 @@ unsigned int load_texture(const char* filename)
                                 format = GL_RGBA;
                                 break;
                         default:
-                                std::cout << "Unsupported number of channels: " << nrChannels << std::endl;
+                                std::cout << filename << ": unsupported number of channels: " << nrChannels << '\n';
                                 stbi_image_free(data);
                         return 0;
                 }
@@ -128,7 +147,7 @@ unsigned int load_texture(const char* filename)
                 glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
                 glGenerateMipmap(GL_TEXTURE_2D);
         } else {
-                std::cout << "Failed to load texture!" << std::endl;
+                std::cout << "failed to load texture: " << filename << '\n';
         }
 
         stbi_image_free(data);
